@@ -1,0 +1,1 @@
+Public static files go here (use the `public` folder for static assets).
