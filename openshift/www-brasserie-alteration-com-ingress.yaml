@@ -1,0 +1,24 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: brasserie-alteration-frontend
+  namespace: alteration
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+spec:
+  ingressClassName: openshift-default
+  rules:
+    - host: www.brasserie-alteration.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: alteration-site
+                port:
+                  number: 8080
+  tls:
+    - hosts:
+        - www.brasserie-alteration.com
+      secretName: tls-www-brasserie-alteration-com

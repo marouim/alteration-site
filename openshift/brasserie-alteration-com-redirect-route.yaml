@@ -1,0 +1,20 @@
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: brasserie-alteration-redirect
+  namespace: alteration
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    cert-manager.io/secret-name: tls-www-brasserie-alteration-com
+    acme.cert-manager.io/http01-edit-in-place: "true"
+spec:
+  host: brasserie-alteration.com
+  to:
+    kind: Service
+    name: alteration-site
+    weight: 100
+  port:
+    targetPort: 8080
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect

@@ -4,3 +4,7 @@ dist/
 .vscode/
 .idea/
 .DS_Store
+*.crt
+*.key
+*.pem
+openshift/secrets/
