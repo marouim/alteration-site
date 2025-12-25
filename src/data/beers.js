@@ -1,0 +1,143 @@
+export const beers = [
+  {
+    slug: 'assemblage-rubis-27',
+    name: 'Assemblage Rubis 27',
+    category: 'moment',
+    style: 'Ale hybride · Moût de Grenache',
+    abv: '6,1%',
+    batch: 'Lot 1100 btles',
+    description: 'Macération pelliculaire, fruits rouges mûrs, finale saline qui rappelle la vendange.',
+    notes: ['Grenache', 'Fermentation mixte', 'Lies fines'],
+    price: 7.5,
+    accent: 'linear-gradient(135deg, #d8577f, #3ea76a)',
+    initialInventory: 1200,
+    remainingInventory: 320,
+    availableAt: ['ferme-guyon', 'marche-village', 'iga-bromont'],
+    hops: ['Barbe Rouge', 'Mosaic Cryo', 'Strisselspalt'],
+    yeast: 'Culture maison mixte (levure ale + levures indigènes du moût)',
+    technique: 'Macération pelliculaire sur Grenache, fermentation inox à basse température puis refermentation bouteille.'
+  },
+  {
+    slug: 'verte-vigne',
+    name: 'Verte Vigne',
+    category: 'signature',
+    style: 'Saison au moût de Muscat',
+    abv: '5,6%',
+    description: 'Fleurs blanches, peau de citron vert, bouche vive portée par le grain et le raisin.',
+    notes: ['Muscat', 'Fermentation lente', 'Houblons nobles'],
+    price: 6.8,
+    accent: 'linear-gradient(135deg, #3ea76a, #9ae6b4)',
+    initialInventory: 600,
+    remainingInventory: 180,
+    availableAt: ['ferme-guyon', 'marche-village'],
+    hops: ['Hallertau Mittelfrüh', 'Saaz', 'Nelson Sauvin'],
+    yeast: 'Souche saison belge + flore indigène du moût de Muscat',
+    technique: 'Fermentation mixte en cuve inox, élevage sur lies fines puis assemblage avec moût frais.'
+  },
+  {
+    slug: 'nocturne-pelliculaire',
+    name: 'Nocturne Pelliculaire',
+    category: 'signature',
+    style: 'Stout vinifié',
+    abv: '7,3%',
+    description: 'Texture soyeuse, cacao profond et touche de cassis issue d’une macération courte.',
+    notes: ['Barriques chêne', 'Pelliculaire', 'Cacao'],
+    price: 7.9,
+    accent: 'linear-gradient(135deg, #2a102d, #7c3a7c)',
+    initialInventory: 500,
+    remainingInventory: 140,
+    availableAt: ['iga-bromont', 'ferme-guyon'],
+    hops: ['East Kent Goldings', 'Fuggle'],
+    yeast: 'Levure anglaise + Brettanomyces dosée pour garder la gourmandise',
+    technique: 'Brassage haute densité, macération pelliculaire courte puis passage en barriques de chêne toast léger.'
+  },
+  {
+    slug: 'assemblage-rubis',
+    name: 'Assemblage Rubis',
+    category: 'signature',
+    style: 'Ale hybride au moût de Grenache',
+    abv: '6,1%',
+    description: 'Macération pelliculaire, fruits rouges mûrs et finale saline pour rappeler la vendange.',
+    notes: ['Grenache', 'Fermentation mixte', 'Lies fines'],
+    price: 7.5,
+    accent: 'linear-gradient(135deg, #9c1b3f, #d8577f)',
+    initialInventory: 800,
+    remainingInventory: 260,
+    availableAt: ['marche-village', 'iga-bromont'],
+    hops: ['Strisselspalt', 'Barbe Rouge'],
+    yeast: 'Culture maison mixte issue de nos cuves d’assemblage',
+    technique: 'Macération 36h sur marc de Grenache, fermentation inox puis élevage court en barrique neutre.'
+  },
+  {
+    slug: 'ambree-vendange-tardive',
+    name: 'Ambrée Vendange Tardive',
+    category: 'limited',
+    style: 'Amber au moût de Pinot Gris',
+    abv: '6,4%',
+    description: 'Notes d’abricot sec, miel clair et légère tension minérale.',
+    price: 6.5,
+    accent: 'linear-gradient(135deg, #f0a35a, #d8577f)',
+    initialInventory: 300,
+    remainingInventory: 96,
+    availableAt: ['ferme-guyon'],
+    hops: ['Tettnang', 'Loral'],
+    yeast: 'Levure neutre de fermentation haute pour laisser parler le moût',
+    technique: 'Presse directe sur marc de Pinot Gris, fermentation lente en inox et garde à froid.'
+  },
+  {
+    slug: 'cuvee-florale',
+    name: 'Cuvée Florale',
+    category: 'limited',
+    style: 'Blanche au moût de Riesling',
+    abv: '4,9%',
+    description: 'Zeste de citron, fleurs blanches, bulle fine et sèche.',
+    price: 6.2,
+    accent: 'linear-gradient(135deg, #8fb3ff, #b6e0fe)',
+    initialInventory: 420,
+    remainingInventory: 210,
+    availableAt: ['marche-village', 'iga-bromont'],
+    hops: ['Hallertau Blanc', 'Mandarina Bavaria'],
+    yeast: 'Levure de blé + flore de Riesling pour une aromatique florale',
+    technique: 'Fermentation mixte à basse température, repos sur lies puis refermentation bouteille.'
+  },
+  {
+    slug: 'sureau-en-barrique',
+    name: 'Sureau en Barrique',
+    category: 'limited',
+    style: 'Saison vieillie',
+    abv: '6,0%',
+    description: 'Fleurs de sureau, vin jaune et finale épicée.',
+    price: 6.9,
+    accent: 'linear-gradient(135deg, #d6c2ff, #8b5cf6)',
+    initialInventory: 260,
+    remainingInventory: 15,
+    availableAt: ['iga-bromont'],
+    hops: ['Styrian Goldings', 'Saaz'],
+    yeast: 'Levure farmhouse + Brett léger pour la complexité',
+    technique: 'Saison élevée 5 mois en barriques avec infusions successives de fleurs de sureau.'
+  },
+  {
+    slug: 'collab-presse-directe',
+    name: 'Collab Presse Directe',
+    category: 'limited',
+    style: 'Gueuze au moût de Gamay',
+    abv: '5,7%',
+    description: 'Acidité vineuse, groseille et pointe brettée élégante.',
+    price: 7.1,
+    accent: 'linear-gradient(135deg, #f472b6, #d946ef)',
+    initialInventory: 340,
+    remainingInventory: 112,
+    availableAt: ['ferme-guyon', 'iga-bromont'],
+    hops: ['Hersbrucker vieilli', 'Triskel'],
+    yeast: 'Culture de gueuze + levures indigènes du Gamay pressé',
+    technique: 'Presse directe du Gamay, fermentation spontanée partielle puis assemblage en cuve pour garder la fraîcheur.'
+  }
+]
+
+export function getBeerBySlug(slug) {
+  return beers.find((beer) => beer.slug === slug)
+}
+
+export function beersByCategory(category) {
+  return beers.filter((beer) => beer.category === category)
+}

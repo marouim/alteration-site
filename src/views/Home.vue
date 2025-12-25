@@ -1,7 +1,6 @@
 <template>
   <v-container fluid class="py-10 px-5 px-md-12">
-    <v-sheet class="hero pa-10 pa-md-14" rounded="xl" elevation="12">
-      <div class="hero-gradient"></div>
+    <v-sheet class="hero pa-10 pa-md-14" rounded="xl" elevation="12" :style="heroStyle">
       <div class="hero-grid">
         <div class="hero-copy">
           <div class="hero-brand">
@@ -29,30 +28,41 @@
             <v-chip color="info" variant="text" label>Élevage barrique</v-chip>
           </div>
         </div>
-        <div class="hero-card">
-          <v-card class="glass" elevation="8" rounded="xl">
+        <div class="hero-card" v-if="momentBeer">
+          <v-card
+            class="glass"
+            elevation="8"
+            rounded="xl"
+            link
+            :to="{ name: 'BeerDetail', params: { slug: momentBeer.slug } }"
+          >
             <v-card-text>
-              <div class="d-flex align-center justify-space-between mb-2">
-                <span class="text-overline text-muted">Brassin du moment</span>
-                <v-chip color="secondary" variant="flat" size="small" label>Vendange hybride</v-chip>
-              </div>
-              <h3 class="mb-2">Altération #27 — Assemblage Raisin Rubis</h3>
-              <p class="text-muted">
-                Moût de Grenache noir, fermentation mixte, macération lente sur lies. Tanins satinés, acidité de baies rouges, finale minérale.
-              </p>
-              <div class="d-flex mt-4">
-                <div class="stat">
-                  <span class="stat-label">ABV</span>
-                  <span class="stat-value">6,1%</span>
+              <div class="d-flex align-start justify-space-between hero-card-row">
+                <div class="mr-4 flex-1">
+                  <div class="d-flex align-center justify-space-between mb-2">
+                    <span class="text-overline text-muted">Brassin du moment</span>
+                    <v-chip color="secondary" variant="flat" size="small" label>{{ momentBeer.batch || 'Édition limitée' }}</v-chip>
+                  </div>
+                  <h3 class="mb-2">{{ momentBeer.name }}</h3>
+                  <p class="text-muted">
+                    {{ momentBeer.description }}
+                  </p>
+                  <div class="d-flex mt-4">
+                    <div class="stat">
+                      <span class="stat-label">ABV</span>
+                      <span class="stat-value">{{ momentBeer.abv }}</span>
+                    </div>
+                    <div class="stat">
+                      <span class="stat-label">Style</span>
+                      <span class="stat-value">{{ momentBeer.style }}</span>
+                    </div>
+                    <div class="stat" v-if="momentBeer.batch">
+                      <span class="stat-label">Édition</span>
+                      <span class="stat-value">{{ momentBeer.batch }}</span>
+                    </div>
+                  </div>
                 </div>
-                <div class="stat">
-                  <span class="stat-label">IBU</span>
-                  <span class="stat-value">10</span>
-                </div>
-                <div class="stat">
-                  <span class="stat-label">Édition</span>
-                  <span class="stat-value">1100 btles</span>
-                </div>
+                <BeerBottle class="d-none d-md-block" :accent="momentBeer.accent" :title="momentBeer.name" />
               </div>
             </v-card-text>
           </v-card>
@@ -70,18 +80,29 @@
         <v-btn variant="text" color="primary" to="/nos-bieres">Voir toute la carte →</v-btn>
       </div>
       <v-row dense>
-        <v-col v-for="beer in beers" :key="beer.name" cols="12" md="4">
-          <v-card class="beer-card" rounded="xl" elevation="8">
+        <v-col v-for="beer in beers" :key="beer.slug" cols="12" md="4">
+          <v-card
+            class="beer-card"
+            rounded="xl"
+            elevation="8"
+            link
+            :to="{ name: 'BeerDetail', params: { slug: beer.slug } }"
+          >
             <div class="beer-accent" :style="{ background: beer.accent }"></div>
             <v-card-text>
               <div class="d-flex align-center justify-space-between mb-1">
                 <span class="text-overline text-muted">{{ beer.style }}</span>
                 <v-chip color="primary" variant="text" density="compact">{{ beer.abv }}</v-chip>
               </div>
-              <h3 class="mb-2">{{ beer.name }}</h3>
-              <p class="text-muted mb-3">{{ beer.description }}</p>
-              <div class="notes">
-                <span class="note" v-for="note in beer.notes" :key="note">{{ note }}</span>
+              <div class="d-flex align-start justify-space-between bottle-row">
+                <div class="flex-1 mr-3">
+                  <h3 class="mb-2">{{ beer.name }}</h3>
+                  <p class="text-muted mb-3">{{ beer.description }}</p>
+                  <div class="notes">
+                    <span class="note" v-for="note in beer.notes" :key="note">{{ note }}</span>
+                  </div>
+                </div>
+                <BeerBottle class="d-none d-md-block" :accent="beer.accent" :title="beer.name" />
               </div>
             </v-card-text>
           </v-card>
@@ -147,34 +168,20 @@
 </template>
 
 <script setup>
-import logo from '../assets/Logo_Alteration_Clr.png'
+import { computed } from 'vue'
+import logo from '../assets/Logo_Alteration_Wth.png'
+import heroBanner from '../assets/Alteration_WebBanner_DarkBG_Left_1900x600.jpg'
+import { beersByCategory } from '../data/beers'
+import BeerBottle from '../components/BeerBottle.vue'
 
-const beers = [
-  {
-    name: 'Assemblage Rubis',
-    style: 'Ale hybride au moût de Grenache',
-    abv: '6,1%',
-    description: 'Macération pelliculaire, fruits rouges mûrs et finale saline pour rappeler la vendange.',
-    notes: ['Raisin Grenache', 'Fermentation mixte', 'Lies fines'],
-    accent: 'linear-gradient(135deg, #9c1b3f, #d8577f)'
-  },
-  {
-    name: 'Verte Vigne',
-    style: 'Saison au moût de Muscat',
-    abv: '5,6%',
-    description: 'Fleurs blanches, peau de citron vert, bouche vive portée par le grain et le raisin.',
-    notes: ['Raisin Muscat', 'Fermentation lente', 'Houblons nobles'],
-    accent: 'linear-gradient(135deg, #3ea76a, #9ae6b4)'
-  },
-  {
-    name: 'Nocturne Pelliculaire',
-    style: 'Stout vinifié en barriques',
-    abv: '7,3%',
-    description: 'Texture soyeuse, cacao profond et touche de cassis issue d\'une macération courte.',
-    notes: ['Barriques chêne', 'Pelliculaire', 'Cacao'],
-    accent: 'linear-gradient(135deg, #2a102d, #7c3a7c)'
-  }
-]
+const momentBeer = computed(() => beersByCategory('moment')[0] || null)
+const beers = computed(() => beersByCategory('signature'))
+
+const heroStyle = computed(() => ({
+  backgroundImage: `linear-gradient(180deg, rgba(11, 8, 16, 0.78), rgba(11, 8, 16, 0.92)), url(${heroBanner})`,
+  backgroundSize: 'cover',
+  backgroundPosition: 'center'
+}))
 
 const steps = [
   {
@@ -202,14 +209,7 @@ const steps = [
 .hero {
   position: relative;
   overflow: hidden;
-  background: radial-gradient(circle at 15% 20%, rgba(216, 87, 127, 0.16), transparent 32%), radial-gradient(circle at 70% 18%, rgba(62, 167, 106, 0.14), transparent 32%), linear-gradient(120deg, #120912 0%, #0b0810 100%);
   border: 1px solid rgba(255, 255, 255, 0.06);
-}
-.hero-gradient {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(180deg, rgba(139, 30, 63, 0.12), rgba(11, 8, 16, 0.88));
-  pointer-events: none;
 }
 .hero-grid {
   position: relative;
@@ -219,7 +219,7 @@ const steps = [
   align-items: center;
 }
 .hero-copy h1 {
-  font-size: clamp(32px, 4vw, 46px);
+  font-size: clamp(28px, 3.4vw, 38px);
   margin: 8px 0 14px;
 }
 .hero-brand {
@@ -259,6 +259,8 @@ const steps = [
   border: 1px solid rgba(255, 255, 255, 0.06);
   overflow: hidden;
 }
+.hero-card-row { gap: 12px; }
+.bottle-row { gap: 8px; }
 .beer-accent {
   position: absolute;
   inset: 0 0 50% 0;

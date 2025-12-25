@@ -2,11 +2,15 @@
   <v-app>
     <v-app-bar app flat color="primary" dark>
       <v-app-bar-nav-icon @click="drawer = !drawer" />
-      <v-toolbar-title class="font-weight-bold text-uppercase tracking">
-        <router-link to="/" class="toolbar-title-link">Altération</router-link>
+      <v-toolbar-title class="font-weight-bold text-uppercase tracking d-flex align-center">
+        <router-link to="/" class="toolbar-title-link d-flex align-center">
+          <img src="/src/assets/Logo_Alteration_Wth.png" alt="Altération" class="toolbar-logo" />
+          <span class="ml-2">Altération</span>
+        </router-link>
       </v-toolbar-title>
       <v-spacer />
       <v-btn variant="text" to="/qui-sommes-nous">Qui sommes nous</v-btn>
+      <v-btn variant="text" to="/points-de-vente">Points de vente</v-btn>
       <v-btn variant="text" to="/nos-bieres">Nos bières</v-btn>
       <v-btn variant="tonal" color="amber-accent" class="ml-3" rounded="xl" to="/sinscrire">Rejoindre</v-btn>
     </v-app-bar>
@@ -44,10 +48,11 @@ const drawer = ref(false)
 </script>
 
 <style>
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700&display=swap');
+
 :root {
   --v-primary-base: #8b1e3f;
 }
-@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700&display=swap');
 body {
   margin: 0;
   font-family: 'Space Grotesk', 'Sora', 'Manrope', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
@@ -63,6 +68,11 @@ body {
   color: inherit;
   text-decoration: none;
   display: inline-block;
+}
+.toolbar-logo {
+  height: 36px;
+  width: auto;
+  object-fit: contain;
 }
 .footer { color: rgba(233,237,245,0.8); }
 .tracking { letter-spacing: 0.18em; }
