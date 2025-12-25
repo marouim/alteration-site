@@ -26,8 +26,7 @@ public class RetailerResource {
   @Path("/{id}")
   public Response byId(@PathParam("id") String id) {
     return dataStore.getRetailerById(id)
-      .<Response>map(Response::ok)
-      .orElseGet(() -> Response.status(Response.Status.NOT_FOUND))
-      .build();
+      .map(retailer -> Response.ok(retailer).build())
+      .orElseGet(() -> Response.status(Response.Status.NOT_FOUND).build());
   }
 }

@@ -26,8 +26,7 @@ public class BeerResource {
   @Path("/{slug}")
   public Response bySlug(@PathParam("slug") String slug) {
     return dataStore.getBeerBySlug(slug)
-      .<Response>map(Response::ok)
-      .orElseGet(() -> Response.status(Response.Status.NOT_FOUND))
-      .build();
+      .map(beer -> Response.ok(beer).build())
+      .orElseGet(() -> Response.status(Response.Status.NOT_FOUND).build());
   }
 }
