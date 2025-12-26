@@ -87,11 +87,11 @@
           <div class="flex-1">
             <h3 class="mb-2">Déclarer un achat</h3>
             <p class="text-muted mb-3">
-              Activez la caméra et scannez un code-barres. La lecture est automatique et stoppe la caméra dès détection.
+              Activez la caméra et scannez un code QR. La lecture est automatique et stoppe la caméra dès détection.
             </p>
             <div class="d-flex align-center gap-3 mb-3">
               <v-btn color="secondary" rounded="xl" @click="toggleScanner">
-                {{ scanning ? 'Arrêter' : 'Scanner un code-barres' }}
+                {{ scanning ? 'Arrêter' : 'Scanner un code QR' }}
               </v-btn>
               <span class="text-muted">Achats cumulés : {{ scans }}</span>
             </div>
@@ -193,13 +193,17 @@ function stopScanner() {
 }
 
 async function startScanLoop() {
-  if (!videoEl.value || !window.jsQR) return
+  if (!videoEl.value) return
   const canvas = document.createElement('canvas')
   const ctx = canvas.getContext('2d', { willReadFrequently: true })
-  const targetMax = 600 // un peu plus grand pour améliorer la lecture
+  const targetMax = 800 // meilleure précision
 
   const tick = () => {
     if (!scanning.value || !videoEl.value) return
+    if (!window.jsQR) {
+      scanLoop = requestAnimationFrame(tick)
+      return
+    }
     const w = videoEl.value.videoWidth
     const h = videoEl.value.videoHeight
     if (!w || !h) {
@@ -269,18 +273,18 @@ async function startScanner() {
     video.muted = true
     video.srcObject = stream
     scanning.value = true // affiche le cadre en attendant la video
-    video.onloadedmetadata = () => {
+    const startAfterReady = () => {
       scanMessage.value = 'Scan en cours...'
-      startScanLoop()
+      setTimeout(() => startScanLoop(), 150)
     }
+    video.onloadedmetadata = startAfterReady
     await video.play().catch((err) => {
       console.error('play error', err)
       scanMessage.value = 'Caméra refusée'
       scanning.value = false
     })
     if (video.readyState >= 2) {
-      scanMessage.value = 'Scan en cours...'
-      startScanLoop()
+      startAfterReady()
     }
   }
 }
