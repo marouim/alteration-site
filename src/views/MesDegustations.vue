@@ -178,8 +178,8 @@ async function toggleScanner() {
     stopScanner()
     return
   }
-  scanMessage.value = ''
-  detector = 'BarcodeDetector' in window ? new window.BarcodeDetector({ formats: ['code_128', 'ean_13', 'qr_code', 'ean_8'] }) : null
+  scanMessage.value = 'Initialisation caméra...'
+  detector = 'BarcodeDetector' in window ? new window.BarcodeDetector({ formats: ['qr_code', 'ean_13', 'code_128', 'ean_8'] }) : null
   if (!detector) {
     const ok = await ensureJsQr()
     if (!ok) {
@@ -188,10 +188,18 @@ async function toggleScanner() {
     }
   }
   try {
-    stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
+    stream = await navigator.mediaDevices.getUserMedia({
+      video: {
+        facingMode: { ideal: 'environment' },
+        width: { ideal: 1280 },
+        height: { ideal: 720 }
+      },
+      audio: false
+    })
     if (videoEl.value) {
       videoEl.value.setAttribute('playsinline', 'true')
       videoEl.value.setAttribute('webkit-playsinline', 'true')
+      videoEl.value.muted = true
       videoEl.value.srcObject = stream
       await videoEl.value.play()
     }
