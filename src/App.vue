@@ -1,5 +1,5 @@
 <template>
-  <v-app>
+<v-app class="app-shell" :style="appBackgroundStyle">
     <v-app-bar app flat color="primary" dark>
       <v-app-bar-nav-icon @click="drawer = !drawer" />
       <v-toolbar-title class="font-weight-bold text-uppercase tracking d-flex align-center">
@@ -40,7 +40,7 @@
       </v-list>
     </v-navigation-drawer>
 
-    <v-main>
+    <v-main class="app-main">
       <router-view />
     </v-main>
 
@@ -57,6 +57,7 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { useUserStore } from './stores/userStore'
+import heroBackground from './assets/Alteration_WebBanner_DarkBG_Left_1900x600.jpg'
 const drawer = ref(false)
 const { isAuthenticated, username, level } = useUserStore()
 const userInitial = computed(() => (username.value ? username.value[0]?.toUpperCase() : ''))
@@ -65,6 +66,14 @@ const levelShort = computed(() => {
   const parts = level.value.split(' ')
   return parts.length > 1 ? parts[1] : level.value
 })
+
+const appBackgroundStyle = computed(() => ({
+  background: `linear-gradient(180deg, rgba(11, 8, 16, 0.82) 0%, rgba(11, 8, 16, 0.86) 40%, rgba(11, 8, 16, 0.9) 100%), url(${heroBackground})`,
+  backgroundSize: 'cover',
+  backgroundPosition: 'center top',
+  backgroundRepeat: 'no-repeat',
+  backgroundAttachment: 'fixed'
+}))
 </script>
 
 <style>
@@ -77,13 +86,12 @@ body {
   margin: 0;
   font-family: 'Space Grotesk', 'Sora', 'Manrope', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
 }
-.v-application {
-  background:
-    radial-gradient(circle at 20% 20%, rgba(139, 30, 63, 0.14) 0, transparent 32%),
-    radial-gradient(circle at 78% 10%, rgba(62, 167, 106, 0.12) 0, transparent 30%),
-    linear-gradient(180deg, #0b0810 0%, #0d0a14 45%, #0b0810 100%);
-  color: #ece6ee;
+.app-main,
+.v-main,
+.v-main__wrap {
+  background: transparent !important;
 }
+.v-application { color: #ece6ee; }
 .toolbar-title-link {
   color: inherit;
   text-decoration: none;

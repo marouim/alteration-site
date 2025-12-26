@@ -7,11 +7,11 @@
             <img :src="logo" alt="Logo Altération" class="hero-logo" />
             <div>
               <div class="eyebrow">Microbrasserie Altération · Estrie</div>
-              <h1>Bières artisanales infusées au moût de raisin.</h1>
+              <h1>La brasserie qui recompose le monde de la bière.</h1>
             </div>
           </div>
           <p class="text-body-1 text-muted">
-            Nous brassons des cuvées vineuses, nées du croisement entre fermentation brassicole et moût de raisins rouges et verts.
+            Nous réinventons les codes brassicoles avec des cuvées vineuses : fermentation brassicole + moût de raisins rouges et verts.
             Texture veloutée, acidité fraîche, couleur rubis scintillante : chaque lot est pensé comme une vendange en bouteille.
           </p>
           <div class="hero-actions">
@@ -25,47 +25,48 @@
           <div class="hero-tags mt-6">
             <v-chip color="secondary" class="mr-3" variant="flat" label>Moût de raisin</v-chip>
             <v-chip color="primary" class="mr-3" variant="tonal" label>Macération carbonique</v-chip>
+            <v-chip color="info" class="mr-3" variant="flat" label>Réinvention brassicole</v-chip>
             <v-chip color="info" variant="text" label>Élevage barrique</v-chip>
           </div>
-        </div>
-        <div class="hero-card" v-if="momentBeer">
-          <v-card
-            class="glass"
-            elevation="8"
-            rounded="xl"
-            link
-            :to="{ name: 'BeerDetail', params: { slug: momentBeer.slug } }"
-          >
-            <v-card-text>
-              <div class="d-flex align-start justify-space-between hero-card-row">
-                <div class="mr-4 flex-1">
-                  <div class="d-flex align-center justify-space-between mb-2">
-                    <span class="text-overline text-muted">Brassin du moment</span>
-                    <v-chip color="secondary" variant="flat" size="small" label>{{ momentBeer.batch || 'Édition limitée' }}</v-chip>
+          <div class="hero-card mt-8" v-if="momentBeer">
+            <v-card
+              class="glass"
+              elevation="8"
+              rounded="xl"
+              link
+              :to="{ name: 'BeerDetail', params: { slug: momentBeer.slug } }"
+            >
+              <v-card-text>
+                <div class="d-flex align-start justify-space-between hero-card-row">
+                  <div class="mr-4 flex-1">
+                    <div class="d-flex align-center justify-space-between mb-2">
+                      <span class="text-overline text-muted">Brassin du moment</span>
+                      <v-chip color="secondary" variant="flat" size="small" label>{{ momentBeer.batch || 'Édition limitée' }}</v-chip>
+                    </div>
+                    <h3 class="mb-2">{{ momentBeer.name }}</h3>
+                    <p class="text-muted">
+                      {{ momentBeer.description }}
+                    </p>
+                    <div class="d-flex mt-4">
+                      <div class="stat">
+                        <span class="stat-label">ABV</span>
+                        <span class="stat-value">{{ momentBeer.abv }}</span>
+                      </div>
+                      <div class="stat">
+                        <span class="stat-label">Style</span>
+                        <span class="stat-value">{{ momentBeer.style }}</span>
+                      </div>
+                      <div class="stat" v-if="momentBeer.batch">
+                        <span class="stat-label">Édition</span>
+                        <span class="stat-value">{{ momentBeer.batch }}</span>
+                      </div>
+                    </div>
                   </div>
-                  <h3 class="mb-2">{{ momentBeer.name }}</h3>
-                  <p class="text-muted">
-                    {{ momentBeer.description }}
-                  </p>
-                  <div class="d-flex mt-4">
-                    <div class="stat">
-                      <span class="stat-label">ABV</span>
-                      <span class="stat-value">{{ momentBeer.abv }}</span>
-                    </div>
-                    <div class="stat">
-                      <span class="stat-label">Style</span>
-                      <span class="stat-value">{{ momentBeer.style }}</span>
-                    </div>
-                    <div class="stat" v-if="momentBeer.batch">
-                      <span class="stat-label">Édition</span>
-                      <span class="stat-value">{{ momentBeer.batch }}</span>
-                    </div>
-                  </div>
+                  <BeerBottle class="d-none d-md-block" :accent="momentBeer.accent" :title="momentBeer.name" />
                 </div>
-                <BeerBottle class="d-none d-md-block" :accent="momentBeer.accent" :title="momentBeer.name" />
-              </div>
-            </v-card-text>
-          </v-card>
+              </v-card-text>
+            </v-card>
+          </div>
         </div>
       </div>
     </v-sheet>
@@ -108,6 +109,77 @@
           </v-card>
         </v-col>
       </v-row>
+    </section>
+
+    <section class="mt-14" v-if="momentBeer">
+      <v-sheet class="moment pa-8 pa-md-10" rounded="xl" elevation="10">
+        <div class="section-head mb-6 d-flex align-center justify-space-between flex-wrap">
+          <div>
+            <p class="eyebrow">Brassin du moment</p>
+            <h2>Lot éphémère</h2>
+            <p class="text-muted">Micro-série disponible en quantités ultra limitées, uniquement à la brasserie.</p>
+          </div>
+          <v-btn color="secondary" variant="flat" class="mt-3 mt-md-0" rounded="xl" :to="{ name: 'BeerDetail', params: { slug: momentBeer.slug } }">
+            Détails & dégustation
+          </v-btn>
+        </div>
+        <v-row>
+          <v-col cols="12" md="7">
+            <div class="moment-body">
+              <div class="d-flex align-center mb-2">
+                <v-chip color="secondary" variant="flat" class="mr-2" size="small" label>{{ momentBeer.batch || 'Édition limitée' }}</v-chip>
+                <v-chip color="info" variant="text" size="small" label>Sur place</v-chip>
+              </div>
+              <h3 class="mb-2">{{ momentBeer.name }}</h3>
+              <p class="text-muted">{{ momentBeer.description }}</p>
+              <div class="d-flex mt-4">
+                <div class="stat">
+                  <span class="stat-label">ABV</span>
+                  <span class="stat-value">{{ momentBeer.abv }}</span>
+                </div>
+                <div class="stat">
+                  <span class="stat-label">Style</span>
+                  <span class="stat-value">{{ momentBeer.style }}</span>
+                </div>
+              </div>
+            </div>
+          </v-col>
+          <v-col cols="12" md="5" class="d-flex justify-center align-center">
+            <BeerBottle :accent="momentBeer.accent" :title="momentBeer.name" class="moment-bottle" />
+          </v-col>
+        </v-row>
+      </v-sheet>
+    </section>
+
+    <section class="mt-14">
+      <v-sheet class="lab pa-8 pa-md-10" rounded="xl" elevation="12">
+        <div class="section-head d-flex align-center justify-space-between mb-6 flex-wrap">
+          <div>
+            <p class="eyebrow">Laboratoire</p>
+            <h2>Nouvelles expériences</h2>
+            <p class="text-muted">
+              Nous testons en micro-lots des idées qui bousculent nos repères : fruits oubliés, ferments rares et affinages audacieux.
+              Dégustation exclusivement au site du brasseur, réservée aux comptes Altération.
+            </p>
+          </div>
+          <div class="d-flex flex-wrap align-center">
+            <v-chip color="secondary" variant="flat" class="mt-3 mt-md-0 mr-3" size="large" label>Batchs en coulisse</v-chip>
+            <v-chip color="error" variant="tonal" class="mt-3 mt-md-0" size="large" label>Accès privé membre</v-chip>
+          </div>
+        </div>
+        <v-row>
+          <v-col v-for="item in labExperiments" :key="item.title" cols="12" md="4">
+            <div class="lab-card">
+              <div class="d-flex align-center mb-2">
+                <v-chip color="primary" variant="text" size="small" class="mr-2" label>{{ item.badge }}</v-chip>
+                <span class="lab-emoji">{{ item.emoji }}</span>
+              </div>
+              <h3 class="mb-2">{{ item.title }}</h3>
+              <p class="text-muted">{{ item.text }}</p>
+            </div>
+          </v-col>
+        </v-row>
+      </v-sheet>
     </section>
 
     <section class="mt-14">
@@ -203,6 +275,27 @@ const steps = [
     tint: 'rgba(195, 213, 198, 0.16)'
   }
 ]
+
+const labExperiments = [
+  {
+    title: 'Riesling sauvage + houblon Nelson',
+    text: 'Macération courte de moût de riesling, houblons NZ en double dry-hop, finale saline et agrumes confits. Service discret au bar labo sur présentation de compte.',
+    badge: 'Assemblage blanc',
+    emoji: '🌀'
+  },
+  {
+    title: 'Cassis noir + fût de cognac',
+    text: 'Bière de garde élevée en barrique de cognac, infusion de cassis de montagne et levures mixtes. Échantillons uniquement sur rendez-vous membre.',
+    badge: 'Barrel trial',
+    emoji: '🧪'
+  },
+  {
+    title: 'Koji + épeautre',
+    text: 'Fermentation co-inoculée avec koji maison, céréale ancienne et moût de raisin vert pour une texture umami. Réservé au comptoir laboratoire.',
+    badge: 'Ferments rares',
+    emoji: '✨'
+  }
+]
 </script>
 
 <style scoped>
@@ -213,10 +306,7 @@ const steps = [
 }
 .hero-grid {
   position: relative;
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 32px;
-  align-items: center;
+  display: block;
 }
 .hero-copy h1 {
   font-size: clamp(28px, 3.4vw, 38px);
@@ -282,6 +372,17 @@ const steps = [
   background: linear-gradient(135deg, rgba(216, 87, 127, 0.08), rgba(15, 10, 18, 0.94));
   border: 1px solid rgba(255, 255, 255, 0.05);
 }
+.moment {
+  background: linear-gradient(120deg, rgba(216, 87, 127, 0.12), rgba(11, 8, 16, 0.92));
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+.moment-body {
+  background: rgba(18, 10, 18, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 14px;
+  padding: 18px;
+}
+.moment-bottle { max-width: 220px; }
 .process-card {
   padding: 20px;
   border-radius: 18px;
@@ -348,6 +449,18 @@ const steps = [
   color: rgba(246, 236, 240, 0.92);
   font-weight: 600;
 }
+.lab {
+  background: linear-gradient(160deg, rgba(62, 167, 106, 0.14), rgba(15, 10, 18, 0.92));
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+.lab-card {
+  padding: 18px;
+  border-radius: 16px;
+  background: rgba(18, 10, 18, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  height: 100%;
+}
+.lab-emoji { font-size: 18px; opacity: 0.9; }
 @media (max-width: 960px) {
   .hero { padding: 32px; }
   .hero-actions { gap: 12px; }
