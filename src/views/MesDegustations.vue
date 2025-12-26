@@ -281,14 +281,19 @@ async function startScanner() {
     video.setAttribute('autoplay', 'true')
     video.muted = true
     video.srcObject = stream
+    scanning.value = true // affiche le cadre en attendant la video
     video.onloadedmetadata = () => {
-      scanning.value = true
       scanMessage.value = 'Scan en cours...'
       startScanLoop()
     }
-    await video.play().catch(() => {
+    await video.play().catch((err) => {
+      console.error('play error', err)
       scanMessage.value = 'Caméra refusée'
     })
+    if (video.readyState >= 2) {
+      scanMessage.value = 'Scan en cours...'
+      startScanLoop()
+    }
   }
 }
 
