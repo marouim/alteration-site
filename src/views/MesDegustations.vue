@@ -226,13 +226,9 @@ async function startScanLoop() {
       scanLoop = requestAnimationFrame(tick)
       return
     }
-    canvas.width = w
-    canvas.height = h
-    ctx.drawImage(videoEl.value, 0, 0, w, h)
     try {
       if (detector) {
-        const bitmap = await createImageBitmap(canvas)
-        const codes = await detector.detect(bitmap)
+        const codes = await detector.detect(videoEl.value)
         if (codes.length) {
           const text = codes[0].rawValue || 'Achat'
           scanMessage.value = `Acheté ${text}`
@@ -240,7 +236,11 @@ async function startScanLoop() {
           stopScanner()
           return
         }
-      } else if (window.jsQR) {
+      }
+      if (window.jsQR) {
+        canvas.width = w
+        canvas.height = h
+        ctx.drawImage(videoEl.value, 0, 0, w, h)
         const imageData = ctx.getImageData(0, 0, w, h)
         const qr = window.jsQR(imageData.data, w, h)
         if (qr && qr.data) {
