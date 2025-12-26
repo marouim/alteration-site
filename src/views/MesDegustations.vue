@@ -96,7 +96,7 @@
               <span class="text-muted">Achats cumulés : {{ scans }}</span>
             </div>
             <div v-if="scanning" class="scanner">
-              <video ref="videoEl" class="scanner-video" autoplay muted playsinline></video>
+              <video ref="videoEl" class="scanner-video" autoplay muted playsinline webkit-playsinline></video>
               <div class="scanner-overlay"></div>
             </div>
             <p class="text-body-2 mt-2" v-if="scanMessage">{{ scanMessage }}</p>
@@ -190,6 +190,8 @@ async function toggleScanner() {
   try {
     stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
     if (videoEl.value) {
+      videoEl.value.setAttribute('playsinline', 'true')
+      videoEl.value.setAttribute('webkit-playsinline', 'true')
       videoEl.value.srcObject = stream
       await videoEl.value.play()
     }
@@ -223,6 +225,7 @@ async function startScanLoop() {
     const w = videoEl.value.videoWidth
     const h = videoEl.value.videoHeight
     if (!w || !h) {
+      scanMessage.value = 'Initialisation caméra...'
       scanLoop = requestAnimationFrame(tick)
       return
     }
