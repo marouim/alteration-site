@@ -68,11 +68,11 @@ const levelShort = computed(() => {
 })
 
 const appBackgroundStyle = computed(() => ({
-  background: `linear-gradient(180deg, rgba(11, 8, 16, 0.82) 0%, rgba(11, 8, 16, 0.86) 40%, rgba(11, 8, 16, 0.9) 100%), url(${heroBackground})`,
-  backgroundSize: 'cover',
-  backgroundPosition: 'center top',
-  backgroundRepeat: 'no-repeat',
-  backgroundAttachment: 'fixed'
+  backgroundImage: `linear-gradient(180deg, rgba(11, 8, 16, 0.82) 0%, rgba(11, 8, 16, 0.86) 40%, rgba(11, 8, 16, 0.9) 100%), url(${heroBackground})`,
+  backgroundSize: 'cover, 100% auto',
+  backgroundPosition: 'center top, center top',
+  backgroundRepeat: 'no-repeat, repeat-y',
+  backgroundAttachment: 'scroll'
 }))
 </script>
 
