@@ -117,12 +117,14 @@
 
 <script setup>
 import { computed, ref, onBeforeUnmount } from 'vue'
+import { useRouter } from 'vue-router'
 import { QrcodeStream } from 'vue-qrcode-reader'
 import { beers } from '../data/beers'
 import BeerBottle from '../components/BeerBottle.vue'
 import { useUserStore } from '../stores/userStore'
 
 const userStore = useUserStore()
+const router = useRouter()
 const activeUser = computed(() => userStore.state.user?.username || '')
 const ratedBeers = computed(() => {
   if (!activeUser.value) return []
@@ -201,10 +203,19 @@ function onError(err) {
 function onDetect(detectedCodes) {
   if (!detectedCodes?.length) return
   const code = detectedCodes[0]
-  const text = code.rawValue || code.data || ''
-  scanMessage.value = text ? `Acheté ${text}` : 'Code QR détecté'
-  userStore.addScan()
-  stopScanner()
+  const text = (code.rawValue || code.data || '').trim()
+  if (text) {
+    const matchedBeer = beers.find((b) => b.slug === text)
+    scanMessage.value = matchedBeer ? `Acheté ${matchedBeer.name}` : `Acheté ${text}`
+    userStore.addScan()
+    stopScanner()
+    if (matchedBeer) {
+      router.push({ name: 'BeerDetail', params: { slug: matchedBeer.slug } })
+    }
+  } else {
+    scanMessage.value = 'Code QR détecté'
+    stopScanner()
+  }
 }
 
 onBeforeUnmount(() => {
