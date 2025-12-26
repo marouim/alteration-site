@@ -223,8 +223,7 @@ async function startScanLoop() {
         }
       }
       if (detector) {
-        const bitmap = await createImageBitmap(canvas)
-        const codes = await detector.detect(bitmap)
+        const codes = await detector.detect(canvas)
         if (codes.length) {
           const text = codes[0].rawValue || 'Achat'
           scanMessage.value = `Acheté ${text}`
@@ -246,14 +245,8 @@ async function startScanner() {
   scanMessage.value = 'Initialisation caméra...'
   scanning.value = true
   await nextTick() // ensure video element is rendered
-  detector = 'BarcodeDetector' in window ? new window.BarcodeDetector({ formats: ['qr_code', 'ean_13', 'code_128', 'ean_8'] }) : null
-  if (!detector) {
-    const ok = await ensureJsQr()
-    if (!ok) {
-      scanMessage.value = 'Scanner non supporté par ce navigateur.'
-      return
-    }
-  }
+  detector = 'BarcodeDetector' in window ? new window.BarcodeDetector({ formats: ['qr_code'] }) : null
+  await ensureJsQr() // charge jsQR en fallback même si detector existe
   const constraintOptions = [
     {
       video: {
