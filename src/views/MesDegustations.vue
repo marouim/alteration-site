@@ -178,37 +178,7 @@ async function toggleScanner() {
     stopScanner()
     return
   }
-  scanMessage.value = 'Initialisation caméra...'
-  detector = 'BarcodeDetector' in window ? new window.BarcodeDetector({ formats: ['qr_code', 'ean_13', 'code_128', 'ean_8'] }) : null
-  if (!detector) {
-    const ok = await ensureJsQr()
-    if (!ok) {
-      scanMessage.value = 'Scanner non supporté par ce navigateur.'
-      return
-    }
-  }
-  try {
-    stream = await navigator.mediaDevices.getUserMedia({
-      video: {
-        facingMode: { ideal: 'environment' },
-        width: { ideal: 1280 },
-        height: { ideal: 720 }
-      },
-      audio: false
-    })
-    if (videoEl.value) {
-      videoEl.value.setAttribute('playsinline', 'true')
-      videoEl.value.setAttribute('webkit-playsinline', 'true')
-      videoEl.value.muted = true
-      videoEl.value.srcObject = stream
-      await videoEl.value.play()
-    }
-    scanning.value = true
-    startScanLoop()
-  } catch (err) {
-    console.error('Camera error', err)
-    scanMessage.value = 'Caméra refusée'
-  }
+  startScanner()
 }
 
 function stopScanner() {
@@ -268,6 +238,58 @@ async function startScanLoop() {
     scanLoop = requestAnimationFrame(tick)
   }
   scanLoop = requestAnimationFrame(tick)
+}
+
+async function startScanner() {
+  scanMessage.value = 'Initialisation caméra...'
+  detector = 'BarcodeDetector' in window ? new window.BarcodeDetector({ formats: ['qr_code', 'ean_13', 'code_128', 'ean_8'] }) : null
+  if (!detector) {
+    const ok = await ensureJsQr()
+    if (!ok) {
+      scanMessage.value = 'Scanner non supporté par ce navigateur.'
+      return
+    }
+  }
+  const constraintOptions = [
+    {
+      video: {
+        facingMode: { ideal: 'environment' },
+        width: { ideal: 1280 },
+        height: { ideal: 720 }
+      },
+      audio: false
+    },
+    { video: true, audio: false }
+  ]
+  stream = null
+  for (const c of constraintOptions) {
+    try {
+      stream = await navigator.mediaDevices.getUserMedia(c)
+      if (stream) break
+    } catch (err) {
+      console.warn('Camera constraint failed', err)
+    }
+  }
+  if (!stream) {
+    scanMessage.value = 'Caméra refusée'
+    return
+  }
+  const video = videoEl.value
+  if (video) {
+    video.setAttribute('playsinline', 'true')
+    video.setAttribute('webkit-playsinline', 'true')
+    video.setAttribute('autoplay', 'true')
+    video.muted = true
+    video.srcObject = stream
+    video.onloadedmetadata = () => {
+      scanning.value = true
+      scanMessage.value = 'Scan en cours...'
+      startScanLoop()
+    }
+    await video.play().catch(() => {
+      scanMessage.value = 'Caméra refusée'
+    })
+  }
 }
 
 onBeforeUnmount(() => {
