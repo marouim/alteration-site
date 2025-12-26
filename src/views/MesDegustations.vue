@@ -150,7 +150,6 @@ const scanning = ref(false)
 const scanMessage = ref('')
 const videoEl = ref(null)
 let stream = null
-let detector = null
 let scanLoop = null
 let jsQrLoaded = false
 
@@ -194,12 +193,12 @@ function stopScanner() {
 }
 
 async function startScanLoop() {
-  if (!videoEl.value) return
+  if (!videoEl.value || !window.jsQR) return
   const canvas = document.createElement('canvas')
   const ctx = canvas.getContext('2d', { willReadFrequently: true })
-  const targetMax = 480
+  const targetMax = 600 // un peu plus grand pour améliorer la lecture
 
-  const tick = async () => {
+  const tick = () => {
     if (!scanning.value || !videoEl.value) return
     const w = videoEl.value.videoWidth
     const h = videoEl.value.videoHeight
@@ -209,32 +208,19 @@ async function startScanLoop() {
       return
     }
     try {
-      // Downscale for faster detection
       const scale = Math.min(1, targetMax / Math.max(w, h))
       const dw = Math.max(1, Math.floor(w * scale))
       const dh = Math.max(1, Math.floor(h * scale))
       canvas.width = dw
       canvas.height = dh
       ctx.drawImage(videoEl.value, 0, 0, dw, dh)
-      if (window.jsQR) {
-        const imageData = ctx.getImageData(0, 0, dw, dh)
-        const qr = window.jsQR(imageData.data, dw, dh)
-        if (qr && qr.data) {
-          scanMessage.value = `Acheté ${qr.data}`
-          userStore.addScan()
-          stopScanner()
-          return
-        }
-      }
-      if (detector) {
-        const codes = await detector.detect(canvas)
-        if (codes.length) {
-          const text = codes[0].rawValue || 'Achat'
-          scanMessage.value = `Acheté ${text}`
-          userStore.addScan()
-          stopScanner()
-          return
-        }
+      const imageData = ctx.getImageData(0, 0, dw, dh)
+      const qr = window.jsQR(imageData.data, dw, dh)
+      if (qr && qr.data) {
+        scanMessage.value = `Acheté ${qr.data}`
+        userStore.addScan()
+        stopScanner()
+        return
       }
     } catch (err) {
       console.error('Detect error', err)
@@ -249,8 +235,7 @@ async function startScanner() {
   scanMessage.value = 'Initialisation caméra...'
   scanning.value = true
   await nextTick() // ensure video element is rendered
-  detector = 'BarcodeDetector' in window ? new window.BarcodeDetector({ formats: ['qr_code'] }) : null
-  await ensureJsQr() // charge jsQR en fallback même si detector existe
+  await ensureJsQr()
   const constraintOptions = [
     {
       video: {
