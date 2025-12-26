@@ -108,7 +108,7 @@
 </template>
 
 <script setup>
-import { computed, ref, onBeforeUnmount } from 'vue'
+import { computed, ref, onBeforeUnmount, nextTick } from 'vue'
 import { beers } from '../data/beers'
 import BeerBottle from '../components/BeerBottle.vue'
 import { useUserStore } from '../stores/userStore'
@@ -242,6 +242,8 @@ async function startScanLoop() {
 
 async function startScanner() {
   scanMessage.value = 'Initialisation caméra...'
+  scanning.value = true
+  await nextTick() // ensure video element is rendered
   detector = 'BarcodeDetector' in window ? new window.BarcodeDetector({ formats: ['qr_code', 'ean_13', 'code_128', 'ean_8'] }) : null
   if (!detector) {
     const ok = await ensureJsQr()
@@ -272,6 +274,7 @@ async function startScanner() {
   }
   if (!stream) {
     scanMessage.value = 'Caméra refusée'
+    scanning.value = false
     return
   }
   const video = videoEl.value
@@ -289,6 +292,7 @@ async function startScanner() {
     await video.play().catch((err) => {
       console.error('play error', err)
       scanMessage.value = 'Caméra refusée'
+      scanning.value = false
     })
     if (video.readyState >= 2) {
       scanMessage.value = 'Scan en cours...'
