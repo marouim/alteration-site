@@ -197,6 +197,7 @@ async function startScanLoop() {
   if (!videoEl.value) return
   const canvas = document.createElement('canvas')
   const ctx = canvas.getContext('2d', { willReadFrequently: true })
+  const targetMax = 480
 
   const tick = async () => {
     if (!scanning.value || !videoEl.value) return
@@ -208,13 +209,16 @@ async function startScanLoop() {
       return
     }
     try {
-      // Always draw frame for jsQR fallback
-      canvas.width = w
-      canvas.height = h
-      ctx.drawImage(videoEl.value, 0, 0, w, h)
+      // Downscale for faster detection
+      const scale = Math.min(1, targetMax / Math.max(w, h))
+      const dw = Math.max(1, Math.floor(w * scale))
+      const dh = Math.max(1, Math.floor(h * scale))
+      canvas.width = dw
+      canvas.height = dh
+      ctx.drawImage(videoEl.value, 0, 0, dw, dh)
       if (window.jsQR) {
-        const imageData = ctx.getImageData(0, 0, w, h)
-        const qr = window.jsQR(imageData.data, w, h)
+        const imageData = ctx.getImageData(0, 0, dw, dh)
+        const qr = window.jsQR(imageData.data, dw, dh)
         if (qr && qr.data) {
           scanMessage.value = `Acheté ${qr.data}`
           userStore.addScan()
