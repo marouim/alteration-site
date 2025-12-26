@@ -5,14 +5,23 @@
       <v-toolbar-title class="font-weight-bold text-uppercase tracking d-flex align-center">
         <router-link to="/" class="toolbar-title-link d-flex align-center">
           <img src="/src/assets/Logo_Alteration_Wth.png" alt="Altération" class="toolbar-logo" />
-          <span class="ml-2">Altération</span>
+          <span class="ml-2 d-none d-md-inline">Altération</span>
         </router-link>
       </v-toolbar-title>
       <v-spacer />
-      <v-btn variant="text" to="/qui-sommes-nous">Qui sommes nous</v-btn>
-      <v-btn variant="text" to="/points-de-vente">Points de vente</v-btn>
-      <v-btn variant="text" to="/nos-bieres">Nos bières</v-btn>
-      <v-btn variant="tonal" color="amber-accent" class="ml-3" rounded="xl" to="/sinscrire">Rejoindre</v-btn>
+      <v-btn class="d-none d-md-inline-flex" variant="text" to="/qui-sommes-nous">Qui sommes nous</v-btn>
+      <v-btn class="d-none d-md-inline-flex" variant="text" to="/points-de-vente">Points de vente</v-btn>
+      <v-btn class="d-none d-md-inline-flex" variant="text" to="/nos-bieres">Nos bières</v-btn>
+      <v-btn v-if="isAuthenticated" class="d-none d-md-inline-flex" variant="text" to="/mes-degustations">Mes dégustations</v-btn>
+      <v-btn class="d-none d-md-inline-flex ml-3" variant="tonal" color="amber-accent" rounded="xl" to="/sinscrire">Rejoindre</v-btn>
+      <router-link v-if="isAuthenticated" to="/profile" class="avatar-link d-none d-md-inline-flex">
+        <v-avatar color="secondary" class="ml-4 avatar-chip d-flex align-center justify-center" size="40">
+          <div class="d-flex flex-column align-center">
+            <span class="font-weight-bold">{{ userInitial }}</span>
+            <small class="avatar-level text-caption">{{ levelShort }}</small>
+          </div>
+        </v-avatar>
+      </router-link>
     </v-app-bar>
 
     <v-navigation-drawer v-model="drawer" app temporary>
@@ -22,8 +31,11 @@
         </v-list-item>
         <v-divider />
         <v-list-item link :to="{ name: 'Home' }">Accueil</v-list-item>
+        <v-list-item link :to="{ name: 'PointsDeVente' }">Points de vente</v-list-item>
         <v-list-item link :to="{ name: 'QuiSommesNous' }">Qui sommes nous</v-list-item>
         <v-list-item link :to="{ name: 'NosBieres' }">Nos bières</v-list-item>
+        <v-list-item v-if="isAuthenticated" link :to="{ name: 'MesDegustations' }">Mes dégustations</v-list-item>
+        <v-list-item v-if="isAuthenticated" link :to="{ name: 'Profile' }">Mon profil</v-list-item>
         <v-list-item link :to="{ name: 'Sinscrire' }">S'inscrire</v-list-item>
       </v-list>
     </v-navigation-drawer>
@@ -43,8 +55,16 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
+import { useUserStore } from './stores/userStore'
 const drawer = ref(false)
+const { isAuthenticated, username, level } = useUserStore()
+const userInitial = computed(() => (username.value ? username.value[0]?.toUpperCase() : ''))
+const levelShort = computed(() => {
+  if (!level.value) return ''
+  const parts = level.value.split(' ')
+  return parts.length > 1 ? parts[1] : level.value
+})
 </script>
 
 <style>
@@ -73,6 +93,11 @@ body {
   height: 36px;
   width: auto;
   object-fit: contain;
+}
+.avatar-link { text-decoration: none; }
+.avatar-chip {
+  background: rgba(255, 255, 255, 0.12);
+  color: #f6ecf0;
 }
 .footer { color: rgba(233,237,245,0.8); }
 .tracking { letter-spacing: 0.18em; }

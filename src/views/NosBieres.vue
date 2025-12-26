@@ -28,6 +28,7 @@
                 <v-chip color="primary" variant="flat" class="mr-2 mb-2" label>{{ momentBeer.style }}</v-chip>
                 <v-chip color="secondary" variant="tonal" class="mr-2 mb-2" label>{{ momentBeer.abv }}</v-chip>
                 <v-chip v-if="momentBeer.batch" color="info" variant="text" class="mr-2 mb-2" label>{{ momentBeer.batch }}</v-chip>
+                <span v-if="hasRating(momentBeer.slug)" class="rating-indicator ml-2" title="Vous avez noté/commenté">★</span>
               </div>
             </div>
           </v-card-text>
@@ -55,7 +56,12 @@
             <v-card-text>
               <div class="d-flex align-center justify-space-between mb-1">
                 <span class="text-overline text-muted">{{ beer.style }}</span>
-                <v-chip color="primary" variant="text" density="comfortable">{{ beer.abv }}</v-chip>
+                <div class="d-flex align-center">
+                  <v-chip color="primary" variant="text" density="comfortable">{{ beer.abv }}</v-chip>
+                  <span v-if="hasRating(beer.slug)" class="rating-indicator ml-2" title="Vous avez noté/commenté">
+                    ★
+                  </span>
+                </div>
               </div>
               <div class="d-flex align-start justify-space-between bottle-row">
                 <div class="flex-1 mr-3">
@@ -109,6 +115,9 @@
               <div class="d-flex align-center justify-space-between">
                 <span class="text-muted text-body-2">Fiche détaillée</span>
                 <v-btn color="secondary" variant="text" rounded="lg" size="small">Voir</v-btn>
+                <span v-if="hasRating(beer.slug)" class="rating-indicator ml-2" title="Vous avez noté/commenté">
+                  ★
+                </span>
               </div>
             </v-card-text>
           </v-card>
@@ -140,13 +149,23 @@
 </template>
 
 <script setup>
+import { computed } from 'vue'
 import { beers, beersByCategory } from '../data/beers'
 import BeerBottle from '../components/BeerBottle.vue'
 import { retailers } from '../data/retailers'
+import { useUserStore } from '../stores/userStore'
 
 const momentBeer = beers.find((beer) => beer.category === 'moment') || null
 const signatureBeers = beersByCategory('signature')
 const otherBeers = beersByCategory('limited')
+
+const { state } = useUserStore()
+const activeUser = computed(() => state.user?.username || '')
+
+function hasRating(slug) {
+  if (!activeUser.value) return false
+  return !!state.ratings[activeUser.value]?.[slug]
+}
 </script>
 
 <style scoped>
@@ -172,6 +191,11 @@ const otherBeers = beersByCategory('limited')
   opacity: 0.18;
 }
 .beer-accent.subtle { opacity: 0.14; inset: 0 0 60% 0; }
+.rating-indicator {
+  color: #d19c3a;
+  font-weight: 700;
+  font-size: 16px;
+}
 .notes {
   display: flex;
   flex-wrap: wrap;

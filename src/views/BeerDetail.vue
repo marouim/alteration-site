@@ -52,6 +52,40 @@
             <div class="notes" v-if="beer.notes?.length">
               <span class="note" v-for="note in beer.notes" :key="note">{{ note }}</span>
             </div>
+            <div class="mt-4">
+              <p class="text-overline text-muted mb-2">Votre appréciation</p>
+              <div class="rating-stars" role="radiogroup" aria-label="Note sur 5">
+                <button
+                  v-for="star in 5"
+                  :key="star"
+                  type="button"
+                  class="rating-star"
+                  :class="{ filled: ratingStars >= star }"
+                  :aria-checked="ratingStars === star"
+                  :aria-label="`${star} étoiles`"
+                  @click="setRating(star)"
+                >
+                  ★
+                </button>
+              </div>
+              <div v-if="ratingStars" class="text-body-2 mt-1">
+                Votre note : {{ ratingStars }}/5
+              </div>
+
+              <div v-if="isAuthenticated">
+                <v-textarea
+                  v-model="ratingComment"
+                  auto-grow
+                  rows="2"
+                  label="Commentaire"
+                  placeholder="Notez vos impressions pour la prochaine dégustation."
+                  class="mt-3"
+                />
+              </div>
+              <div v-else class="mt-2 text-muted text-body-2">
+                Connectez-vous pour enregistrer votre note et commentaire.
+              </div>
+            </div>
           </div>
         </v-card-text>
       </v-card>
@@ -140,14 +174,16 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { beers, getBeerBySlug, beersByCategory } from '../data/beers'
 import BeerBottle from '../components/BeerBottle.vue'
 import { getRetailersByIds } from '../data/retailers'
+import { useUserStore } from '../stores/userStore'
 
 const route = useRoute()
 const router = useRouter()
+const userStore = useUserStore()
 
 const slug = computed(() => route.params.slug?.toString?.() || '')
 const beer = computed(() => getBeerBySlug(slug.value))
@@ -175,8 +211,33 @@ const beerRetailers = computed(() => {
   return getRetailersByIds(beer.value.availableAt)
 })
 
+const isAuthenticated = userStore.isAuthenticated
+const userRating = computed(() => (beer.value ? userStore.getRating(beer.value.slug) : null))
+const tempRating = ref(0)
+const ratingStars = computed({
+  get: () => (isAuthenticated.value ? userRating.value?.stars || 0 : tempRating.value),
+  set: (val) => {
+    if (!beer.value) return
+    if (isAuthenticated.value) {
+      userStore.saveRating(beer.value.slug, val, userRating.value?.comment || '')
+    } else {
+      tempRating.value = val
+    }
+  }
+})
+const ratingComment = computed({
+  get: () => userRating.value?.comment || '',
+  set: (val) => {
+    if (beer.value) userStore.saveRating(beer.value.slug, ratingStars.value, val)
+  }
+})
+
 function goBack() {
   router.push({ name: 'NosBieres' })
+}
+
+function setRating(star) {
+  ratingStars.value = star
 }
 </script>
 
@@ -227,5 +288,17 @@ function goBack() {
   opacity: 0.18;
 }
 .beer-accent.subtle { opacity: 0.14; inset: 0 0 60% 0; }
+.rating-star {
+  font-size: 28px;
+  color: #7c7c85;
+  cursor: pointer;
+  background: transparent;
+  border: none;
+  padding: 2px;
+  line-height: 1;
+}
+.rating-star.filled {
+  color: #d19c3a;
+}
 .chips-row { gap: 10px; }
 </style>
