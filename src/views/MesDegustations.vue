@@ -196,7 +196,7 @@ function stopScanner() {
 async function startScanLoop() {
   if (!videoEl.value) return
   const canvas = document.createElement('canvas')
-  const ctx = canvas.getContext('2d')
+  const ctx = canvas.getContext('2d', { willReadFrequently: true })
 
   const tick = async () => {
     if (!scanning.value || !videoEl.value) return
@@ -208,24 +208,26 @@ async function startScanLoop() {
       return
     }
     try {
-      if (detector) {
-        const codes = await detector.detect(videoEl.value)
-        if (codes.length) {
-          const text = codes[0].rawValue || 'Achat'
-          scanMessage.value = `Acheté ${text}`
+      // Always draw frame for jsQR fallback
+      canvas.width = w
+      canvas.height = h
+      ctx.drawImage(videoEl.value, 0, 0, w, h)
+      if (window.jsQR) {
+        const imageData = ctx.getImageData(0, 0, w, h)
+        const qr = window.jsQR(imageData.data, w, h)
+        if (qr && qr.data) {
+          scanMessage.value = `Acheté ${qr.data}`
           userStore.addScan()
           stopScanner()
           return
         }
       }
-      if (window.jsQR) {
-        canvas.width = w
-        canvas.height = h
-        ctx.drawImage(videoEl.value, 0, 0, w, h)
-        const imageData = ctx.getImageData(0, 0, w, h)
-        const qr = window.jsQR(imageData.data, w, h)
-        if (qr && qr.data) {
-          scanMessage.value = `Acheté ${qr.data}`
+      if (detector) {
+        const bitmap = await createImageBitmap(canvas)
+        const codes = await detector.detect(bitmap)
+        if (codes.length) {
+          const text = codes[0].rawValue || 'Achat'
+          scanMessage.value = `Acheté ${text}`
           userStore.addScan()
           stopScanner()
           return
