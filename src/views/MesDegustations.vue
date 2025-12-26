@@ -96,7 +96,15 @@
               <span class="text-muted">Achats cumulés : {{ scans }}</span>
             </div>
             <div v-if="scanning" class="scanner">
-              <video ref="videoEl" class="scanner-video" autoplay muted playsinline webkit-playsinline></video>
+              <QrcodeStream
+                class="scanner-stream"
+                :paused="!scanning"
+                :constraints="{ facingMode: { ideal: 'environment' } }"
+                @detect="onDetect"
+                @camera-on="onCameraOn"
+                @camera-off="onCameraOff"
+                @error="onError"
+              />
               <div class="scanner-overlay"></div>
             </div>
             <p class="text-body-2 mt-2" v-if="scanMessage">{{ scanMessage }}</p>
@@ -108,7 +116,8 @@
 </template>
 
 <script setup>
-import { computed, ref, onBeforeUnmount, nextTick } from 'vue'
+import { computed, ref, onBeforeUnmount } from 'vue'
+import { QrcodeStream } from 'vue-qrcode-reader'
 import { beers } from '../data/beers'
 import BeerBottle from '../components/BeerBottle.vue'
 import { useUserStore } from '../stores/userStore'
@@ -148,29 +157,6 @@ const scans = userStore.scans
 
 const scanning = ref(false)
 const scanMessage = ref('')
-const videoEl = ref(null)
-let stream = null
-let scanLoop = null
-let jsQrLoaded = false
-
-async function ensureJsQr() {
-  if (jsQrLoaded) return true
-  if (window.jsQR) {
-    jsQrLoaded = true
-    return true
-  }
-  return new Promise((resolve) => {
-    const script = document.createElement('script')
-    const base = import.meta.env.BASE_URL || '/'
-    script.src = `${base.replace(/\/$/, '')}/jsqr.min.js`
-    script.onload = () => {
-      jsQrLoaded = !!window.jsQR
-      resolve(true)
-    }
-    script.onerror = () => resolve(false)
-    document.head.appendChild(script)
-  })
-}
 
 async function toggleScanner() {
   if (scanning.value) {
@@ -182,111 +168,43 @@ async function toggleScanner() {
 
 function stopScanner() {
   scanning.value = false
-  if (scanLoop) {
-    cancelAnimationFrame(scanLoop)
-    scanLoop = null
-  }
-  if (stream) {
-    stream.getTracks().forEach((t) => t.stop())
-    stream = null
-  }
-}
-
-async function startScanLoop() {
-  if (!videoEl.value) return
-  const canvas = document.createElement('canvas')
-  const ctx = canvas.getContext('2d', { willReadFrequently: true })
-  const targetMax = 800 // meilleure précision
-
-  const tick = () => {
-    if (!scanning.value || !videoEl.value) return
-    if (!window.jsQR) {
-      scanLoop = requestAnimationFrame(tick)
-      return
-    }
-    const w = videoEl.value.videoWidth
-    const h = videoEl.value.videoHeight
-    if (!w || !h) {
-      scanMessage.value = 'Initialisation caméra...'
-      scanLoop = requestAnimationFrame(tick)
-      return
-    }
-    try {
-      const scale = Math.min(1, targetMax / Math.max(w, h))
-      const dw = Math.max(1, Math.floor(w * scale))
-      const dh = Math.max(1, Math.floor(h * scale))
-      canvas.width = dw
-      canvas.height = dh
-      ctx.drawImage(videoEl.value, 0, 0, dw, dh)
-      const imageData = ctx.getImageData(0, 0, dw, dh)
-      const qr = window.jsQR(imageData.data, dw, dh)
-      if (qr && qr.data) {
-        scanMessage.value = `Acheté ${qr.data}`
-        userStore.addScan()
-        stopScanner()
-        return
-      }
-    } catch (err) {
-      console.error('Detect error', err)
-      scanMessage.value = 'Scan en cours...'
-    }
-    scanLoop = requestAnimationFrame(tick)
-  }
-  scanLoop = requestAnimationFrame(tick)
 }
 
 async function startScanner() {
   scanMessage.value = 'Initialisation caméra...'
   scanning.value = true
-  await nextTick() // ensure video element is rendered
-  await ensureJsQr()
-  const constraintOptions = [
-    {
-      video: {
-        facingMode: { ideal: 'environment' },
-        width: { ideal: 1280 },
-        height: { ideal: 720 }
-      },
-      audio: false
-    },
-    { video: true, audio: false }
-  ]
-  stream = null
-  for (const c of constraintOptions) {
-    try {
-      stream = await navigator.mediaDevices.getUserMedia(c)
-      if (stream) break
-    } catch (err) {
-      console.warn('Camera constraint failed', err)
-    }
+}
+
+function onCameraOn() {
+  scanMessage.value = 'Scan en cours...'
+}
+
+function onCameraOff() {
+  if (scanning.value) {
+    scanMessage.value = 'Caméra arrêtée'
   }
-  if (!stream) {
-    scanMessage.value = 'Caméra refusée'
-    scanning.value = false
-    return
+}
+
+function onError(err) {
+  console.error('Camera error', err)
+  const common = {
+    NotAllowedError: 'Accès caméra refusé',
+    NotFoundError: 'Aucune caméra détectée',
+    NotReadableError: 'Caméra occupée par une autre application',
+    OverconstrainedError: 'Caméra incompatible avec les contraintes',
+    NotSupportedError: 'Caméra non supportée sur ce périphérique'
   }
-  const video = videoEl.value
-  if (video) {
-    video.setAttribute('playsinline', 'true')
-    video.setAttribute('webkit-playsinline', 'true')
-    video.setAttribute('autoplay', 'true')
-    video.muted = true
-    video.srcObject = stream
-    scanning.value = true // affiche le cadre en attendant la video
-    const startAfterReady = () => {
-      scanMessage.value = 'Scan en cours...'
-      setTimeout(() => startScanLoop(), 150)
-    }
-    video.onloadedmetadata = startAfterReady
-    await video.play().catch((err) => {
-      console.error('play error', err)
-      scanMessage.value = 'Caméra refusée'
-      scanning.value = false
-    })
-    if (video.readyState >= 2) {
-      startAfterReady()
-    }
-  }
+  scanMessage.value = common[err?.name] || 'Erreur caméra'
+  stopScanner()
+}
+
+function onDetect(detectedCodes) {
+  if (!detectedCodes?.length) return
+  const code = detectedCodes[0]
+  const text = code.rawValue || code.data || ''
+  scanMessage.value = text ? `Acheté ${text}` : 'Code QR détecté'
+  userStore.addScan()
+  stopScanner()
 }
 
 onBeforeUnmount(() => {
@@ -348,7 +266,7 @@ onBeforeUnmount(() => {
   overflow: hidden;
   border: 1px solid rgba(255, 255, 255, 0.08);
 }
-.scanner-video {
+.scanner-stream {
   width: 100%;
   height: 100%;
   object-fit: cover;
