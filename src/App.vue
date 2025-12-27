@@ -69,9 +69,9 @@ const levelShort = computed(() => {
 
 const appBackgroundStyle = computed(() => ({
   backgroundImage: `linear-gradient(180deg, rgba(11, 8, 16, 0.82) 0%, rgba(11, 8, 16, 0.86) 40%, rgba(11, 8, 16, 0.9) 100%), url(${heroBackground})`,
-  backgroundSize: 'cover, 100% auto',
+  backgroundSize: '100% 600px, 100% 600px',
   backgroundPosition: 'center top, center top',
-  backgroundRepeat: 'no-repeat, repeat-y',
+  backgroundRepeat: 'repeat-y, repeat-y',
   backgroundAttachment: 'scroll'
 }))
 </script>

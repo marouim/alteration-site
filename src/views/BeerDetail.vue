@@ -90,6 +90,36 @@
         </v-card-text>
       </v-card>
 
+      <v-sheet class="pairing-block mb-8" rounded="xl" elevation="10">
+        <div class="section-head mb-4">
+          <p class="eyebrow">Accords mets & fromages</p>
+          <h2 class="mb-2">Ce qui sublime {{ beer.name }}</h2>
+          <p class="text-muted">Suggestions pour amplifier les arômes et textures de cette cuvée.</p>
+        </div>
+        <v-row>
+          <v-col cols="12" md="6">
+            <div class="pairing-card">
+              <div class="pairing-icon" :style="{ background: 'rgba(216, 87, 127, 0.16)' }">🥘</div>
+              <div>
+                <p class="text-overline text-muted mb-1">Mets</p>
+                <h3 class="mb-1">{{ pairings.dishes.title }}</h3>
+                <p class="text-muted mb-0">{{ pairings.dishes.text }}</p>
+              </div>
+            </div>
+          </v-col>
+          <v-col cols="12" md="6">
+            <div class="pairing-card">
+              <div class="pairing-icon" :style="{ background: 'rgba(62, 167, 106, 0.16)' }">🧀</div>
+              <div>
+                <p class="text-overline text-muted mb-1">Fromages</p>
+                <h3 class="mb-1">{{ pairings.cheeses.title }}</h3>
+                <p class="text-muted mb-0">{{ pairings.cheeses.text }}</p>
+              </div>
+            </div>
+          </v-col>
+        </v-row>
+      </v-sheet>
+
       <v-row dense class="mb-8">
         <v-col cols="12" md="4">
           <v-sheet class="info-block" rounded="xl" elevation="8">
@@ -239,6 +269,21 @@ function goBack() {
 function setRating(star) {
   ratingStars.value = star
 }
+
+const pairings = computed(() => ({
+  dishes: {
+    title: beer.value?.pairings?.dishes?.title || 'Cuisine vive & iodée',
+    text:
+      beer.value?.pairings?.dishes?.text ||
+      "Crudo de poisson blanc, ceviche aux agrumes, légumes grillés au zaatar ou volaille fermière rôtie."
+  },
+  cheeses: {
+    title: beer.value?.pairings?.cheeses?.title || 'Fromages à pâte molle & croûte fleurie',
+    text:
+      beer.value?.pairings?.cheeses?.text ||
+      "Brie fermier, camembert au lait cru, saint-félicien affiné, tomme légèrement lavée pour jouer l'umami."
+  }
+}))
 </script>
 
 <style scoped>
@@ -269,6 +314,28 @@ function setRating(star) {
   border-radius: 999px;
   font-size: 12px;
   color: rgba(246, 236, 240, 0.9);
+}
+.pairing-block {
+  background: rgba(11, 8, 16, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+.pairing-card {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 12px;
+  padding: 16px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  height: 100%;
+}
+.pairing-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  font-size: 18px;
 }
 .info-block {
   background: rgba(16, 10, 18, 0.94);
